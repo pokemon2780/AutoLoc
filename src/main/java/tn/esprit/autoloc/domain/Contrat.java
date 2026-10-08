@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -20,4 +22,11 @@ public class Contrat {
     private LocalDate dateSignature;
     private BigDecimal montantTotal;
     private boolean valide;
+
+    @OneToOne
+    @JoinColumn(name = "id_reservation", unique = true)
+    private Reservation reservation;
+
+    @OneToMany(mappedBy = "contrat")
+    private List<Paiement> paiements = new ArrayList<>();
 }
