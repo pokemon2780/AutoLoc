@@ -30,4 +30,35 @@ public class ReservationService implements IReservationService {
         return repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Reservation", id));
     }
+
+    @Override
+    @Transactional
+    public Reservation create(Reservation entity) {
+        Objects.requireNonNull(entity, "L'entité est obligatoire");
+        if (entity.getIdReservation() != null) throw new IllegalArgumentException("Un nouvel objet ne doit pas avoir d'identifiant");
+        validate(entity);
+        return repository.save(entity);
+    }
+
+    @Override
+    @Transactional
+    public Reservation update(Long id, Reservation entity) {
+        Objects.requireNonNull(entity, "L'entité est obligatoire");
+        validate(entity);
+        Reservation existing = findById(id);
+        existing.setDateDebut(entity.getDateDebut());
+        existing.setDateFin(entity.getDateFin());
+        existing.setStatut(entity.getStatut());
+        return repository.save(existing);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        repository.delete(findById(id));
+    }
+
+    private void validate(Reservation entity) {
+        if (entity.getDateDebut() != null && entity.getDateFin() != null && entity.getDateFin().isBefore(entity.getDateDebut())) throw new IllegalArgumentException("La date de fin doit suivre la date de début");
+    }
 }

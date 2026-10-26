@@ -3,6 +3,7 @@ package tn.esprit.autoloc.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tn.esprit.autoloc.domain.Vehicule;
@@ -27,6 +28,7 @@ class VehiculeServiceTest {
     @Test
     void createReturnsTheSavedEntity() {
         Vehicule input = new Vehicule();
+        input.setTarifJournalier(BigDecimal.TEN);
         Vehicule saved = new Vehicule();
         saved.setIdVehicule(1L);
         when(repository.save(input)).thenReturn(saved);
@@ -60,6 +62,7 @@ class VehiculeServiceTest {
         Vehicule input = new Vehicule();
         input.setIdVehicule(99L);
         input.setMarque("Valeur modifiée");
+        input.setTarifJournalier(BigDecimal.TEN);
         when(repository.findById(1L)).thenReturn(Optional.of(existing));
         when(repository.save(existing)).thenReturn(existing);
 

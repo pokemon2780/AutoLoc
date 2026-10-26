@@ -2,6 +2,7 @@ package tn.esprit.autoloc.service.impl;
 
 import java.util.List;
 import java.util.Objects;
+import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.autoloc.domain.Vehicule;
@@ -35,6 +36,7 @@ public class VehiculeService implements IVehiculeService {
     @Transactional
     public Vehicule create(Vehicule vehicule) {
         Objects.requireNonNull(vehicule, "L'entité est obligatoire");
+        validate(vehicule);
         if (vehicule.getIdVehicule() != null) {
             throw new IllegalArgumentException("Un nouvel objet ne doit pas avoir d'identifiant");
         }
@@ -46,6 +48,7 @@ public class VehiculeService implements IVehiculeService {
     public Vehicule update(Long id, Vehicule vehicule) {
         Objects.requireNonNull(vehicule, "L'entité est obligatoire");
         Vehicule existing = findById(id);
+        validate(vehicule);
         existing.setImmatriculation(vehicule.getImmatriculation());
         existing.setMarque(vehicule.getMarque());
         existing.setModele(vehicule.getModele());
@@ -60,5 +63,11 @@ public class VehiculeService implements IVehiculeService {
     public void delete(Long id) {
         Vehicule existing = findById(id);
         repository.delete(existing);
+    }
+
+    private void validate(Vehicule vehicule) {
+        if (vehicule.getTarifJournalier() == null || vehicule.getTarifJournalier().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Le tarif journalier doit être positif ou nul");
+        }
     }
 }

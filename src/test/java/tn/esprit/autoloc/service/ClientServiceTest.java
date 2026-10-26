@@ -27,6 +27,8 @@ class ClientServiceTest {
     @Test
     void createReturnsTheSavedEntity() {
         Client input = new Client();
+        input.setNom("Alice");
+        input.setEmail("alice@example.com");
         Client saved = new Client();
         saved.setIdClient(1L);
         when(repository.save(input)).thenReturn(saved);
@@ -60,6 +62,7 @@ class ClientServiceTest {
         Client input = new Client();
         input.setIdClient(99L);
         input.setNom("Valeur modifiée");
+        input.setEmail("alice@example.com");
         when(repository.findById(1L)).thenReturn(Optional.of(existing));
         when(repository.save(existing)).thenReturn(existing);
 

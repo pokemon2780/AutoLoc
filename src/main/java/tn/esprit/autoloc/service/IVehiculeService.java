@@ -13,4 +13,8 @@ public interface IVehiculeService {
     Vehicule update(Long id, Vehicule vehicule);
 
     void delete(Long id);
+
+    default void deleteById(Long id) {
+        delete(id);
+    }
 }

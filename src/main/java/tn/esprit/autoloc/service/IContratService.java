@@ -14,6 +14,10 @@ public interface IContratService {
 
     void delete(Long id);
 
+    default void deleteById(Long id) {
+        delete(id);
+    }
+
     Contrat addPaiement(Long contratId, tn.esprit.autoloc.domain.Paiement paiement);
 
     Contrat removePaiement(Long contratId, Long paiementId);

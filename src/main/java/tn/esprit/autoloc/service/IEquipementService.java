@@ -7,4 +7,13 @@ public interface IEquipementService {
     List<Equipement> findAll();
 
     Equipement findById(Long id);
+    Equipement create(Equipement entity);
+
+    Equipement update(Long id, Equipement entity);
+
+    void delete(Long id);
+
+    default void deleteById(Long id) {
+        delete(id);
+    }
 }

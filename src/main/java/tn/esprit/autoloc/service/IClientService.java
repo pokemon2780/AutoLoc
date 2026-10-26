@@ -13,4 +13,8 @@ public interface IClientService {
     Client update(Long id, Client client);
 
     void delete(Long id);
+
+    default void deleteById(Long id) {
+        delete(id);
+    }
 }

@@ -30,4 +30,35 @@ public class MaintenanceService implements IMaintenanceService {
         return repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Maintenance", id));
     }
+
+    @Override
+    @Transactional
+    public Maintenance create(Maintenance entity) {
+        Objects.requireNonNull(entity, "L'entité est obligatoire");
+        if (entity.getIdMaintenance() != null) throw new IllegalArgumentException("Un nouvel objet ne doit pas avoir d'identifiant");
+        validate(entity);
+        return repository.save(entity);
+    }
+
+    @Override
+    @Transactional
+    public Maintenance update(Long id, Maintenance entity) {
+        Objects.requireNonNull(entity, "L'entité est obligatoire");
+        validate(entity);
+        Maintenance existing = findById(id);
+        existing.setDateDebut(entity.getDateDebut());
+        existing.setDateFin(entity.getDateFin());
+        existing.setDescription(entity.getDescription());
+        return repository.save(existing);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        repository.delete(findById(id));
+    }
+
+    private void validate(Maintenance entity) {
+        if (entity.getDateDebut() != null && entity.getDateFin() != null && entity.getDateFin().isBefore(entity.getDateDebut())) throw new IllegalArgumentException("La date de fin doit suivre la date de début");
+    }
 }

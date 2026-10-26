@@ -2,6 +2,7 @@ package tn.esprit.autoloc.service.impl;
 
 import java.util.List;
 import java.util.Objects;
+import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.autoloc.domain.Contrat;
@@ -36,6 +37,7 @@ public class ContratService implements IContratService {
     @Transactional
     public Contrat create(Contrat contrat) {
         Objects.requireNonNull(contrat, "Le contrat est obligatoire");
+        validate(contrat);
         if (contrat.getIdContrat() != null) {
             throw new IllegalArgumentException("Un nouveau contrat ne doit pas avoir d'identifiant");
         }
@@ -56,6 +58,7 @@ public class ContratService implements IContratService {
     @Transactional
     public Contrat update(Long id, Contrat contrat) {
         Objects.requireNonNull(contrat, "Le contrat est obligatoire");
+        validate(contrat);
         Contrat existing = findById(id);
         existing.setDateSignature(contrat.getDateSignature());
         existing.setMontantTotal(contrat.getMontantTotal());
@@ -92,5 +95,11 @@ public class ContratService implements IContratService {
                 .orElseThrow(() -> new EntityNotFoundException("Paiement", paiementId));
         contrat.retirerPaiement(paiement);
         return repository.save(contrat);
+    }
+
+    private void validate(Contrat contrat) {
+        if (contrat.getMontantTotal() != null && contrat.getMontantTotal().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Le montant total ne peut pas être négatif");
+        }
     }
 }

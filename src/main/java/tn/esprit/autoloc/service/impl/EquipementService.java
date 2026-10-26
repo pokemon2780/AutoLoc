@@ -30,4 +30,33 @@ public class EquipementService implements IEquipementService {
         return repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Equipement", id));
     }
+
+    @Override
+    @Transactional
+    public Equipement create(Equipement entity) {
+        Objects.requireNonNull(entity, "L'entité est obligatoire");
+        if (entity.getIdEquipement() != null) throw new IllegalArgumentException("Un nouvel objet ne doit pas avoir d'identifiant");
+        validate(entity);
+        return repository.save(entity);
+    }
+
+    @Override
+    @Transactional
+    public Equipement update(Long id, Equipement entity) {
+        Objects.requireNonNull(entity, "L'entité est obligatoire");
+        validate(entity);
+        Equipement existing = findById(id);
+        existing.setLibelle(entity.getLibelle());
+        return repository.save(existing);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        repository.delete(findById(id));
+    }
+
+    private void validate(Equipement entity) {
+        if (entity.getLibelle() == null || entity.getLibelle().isBlank()) throw new IllegalArgumentException("Le libellé est obligatoire");
+    }
 }

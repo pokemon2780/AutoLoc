@@ -3,6 +3,7 @@ package tn.esprit.autoloc.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,12 +45,15 @@ public class Vehicule {
     private Agence agence;
 
     @OneToMany(mappedBy = "vehicule")
+    @JsonIgnore
     private List<Maintenance> maintenances = new ArrayList<>();
 
     @OneToMany(mappedBy = "vehicule")
+    @JsonIgnore
     private List<Reservation> reservations = new ArrayList<>();
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(
             name = "vehicule_equipement",
             joinColumns = @JoinColumn(name = "id_vehicule"),

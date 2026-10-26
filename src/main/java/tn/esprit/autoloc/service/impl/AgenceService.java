@@ -30,4 +30,36 @@ public class AgenceService implements IAgenceService {
         return repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Agence", id));
     }
+
+    @Override
+    @Transactional
+    public Agence create(Agence entity) {
+        Objects.requireNonNull(entity, "L'entité est obligatoire");
+        if (entity.getIdAgence() != null) throw new IllegalArgumentException("Un nouvel objet ne doit pas avoir d'identifiant");
+        validate(entity);
+        return repository.save(entity);
+    }
+
+    @Override
+    @Transactional
+    public Agence update(Long id, Agence entity) {
+        Objects.requireNonNull(entity, "L'entité est obligatoire");
+        validate(entity);
+        Agence existing = findById(id);
+        existing.setNom(entity.getNom());
+        existing.setVille(entity.getVille());
+        existing.setAdresse(entity.getAdresse());
+        existing.setTelephone(entity.getTelephone());
+        return repository.save(existing);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        repository.delete(findById(id));
+    }
+
+    private void validate(Agence entity) {
+        if (entity.getNom() == null || entity.getNom().isBlank()) throw new IllegalArgumentException("Le nom de l’agence est obligatoire");
+    }
 }

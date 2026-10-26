@@ -3,6 +3,7 @@ package tn.esprit.autoloc.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,5 +27,6 @@ public class Client {
     private LocalDate dateInscription;
 
     @OneToMany(mappedBy = "client")
+    @JsonIgnore
     private List<Reservation> reservations = new ArrayList<>();
 }

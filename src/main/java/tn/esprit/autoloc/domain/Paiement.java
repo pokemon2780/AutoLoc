@@ -3,6 +3,7 @@ package tn.esprit.autoloc.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDate;
 import java.math.BigDecimal;
 
@@ -24,6 +25,7 @@ public class Paiement {
     private ModePaiement modePaiement;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "id_contrat")
     private Contrat contrat;
 }
