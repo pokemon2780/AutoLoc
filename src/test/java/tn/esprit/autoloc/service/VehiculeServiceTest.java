@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import tn.esprit.autoloc.domain.Vehicule;
 import tn.esprit.autoloc.domain.Maintenance;
 import tn.esprit.autoloc.repository.IVehiculeRepository;
-import tn.esprit.autoloc.service.impl.VehiculeService;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -17,12 +16,12 @@ import static org.mockito.Mockito.*;
 class VehiculeServiceTest {
 
     private IVehiculeRepository repository;
-    private VehiculeService service;
+    private VehiculeServiceImpl service;
 
     @BeforeEach
     void setUp() {
         repository = mock(IVehiculeRepository.class);
-        service = new VehiculeService(repository);
+        service = new VehiculeServiceImpl(repository);
     }
 
     @Test
@@ -77,9 +76,9 @@ class VehiculeServiceTest {
     @Test
     void missingEntityCannotBeReadUpdatedOrDeleted() {
         when(repository.findById(404L)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> service.findById(404L));
-        assertThrows(EntityNotFoundException.class, () -> service.update(404L, new Vehicule()));
-        assertThrows(EntityNotFoundException.class, () -> service.delete(404L));
+        assertThrows(tn.esprit.autoloc.exception.ResourceNotFoundException.class, () -> service.findById(404L));
+        assertThrows(tn.esprit.autoloc.exception.ResourceNotFoundException.class, () -> service.update(404L, new Vehicule()));
+        assertThrows(tn.esprit.autoloc.exception.ResourceNotFoundException.class, () -> service.deleteById(404L));
         verify(repository, never()).save(any(Vehicule.class));
         verify(repository, never()).delete(any(Vehicule.class));
     }
@@ -88,7 +87,7 @@ class VehiculeServiceTest {
     void deleteRemovesTheExistingEntity() {
         Vehicule existing = new Vehicule();
         when(repository.findById(1L)).thenReturn(Optional.of(existing));
-        service.delete(1L);
+        service.deleteById(1L);
         verify(repository).delete(existing);
     }
 }
