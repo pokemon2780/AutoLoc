@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import tn.esprit.autoloc.domain.Client;
 import tn.esprit.autoloc.domain.Reservation;
 import tn.esprit.autoloc.repository.IClientRepository;
-import tn.esprit.autoloc.service.impl.ClientService;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -16,12 +15,12 @@ import static org.mockito.Mockito.*;
 class ClientServiceTest {
 
     private IClientRepository repository;
-    private ClientService service;
+    private ClientServiceImpl service;
 
     @BeforeEach
     void setUp() {
         repository = mock(IClientRepository.class);
-        service = new ClientService(repository);
+        service = new ClientServiceImpl(repository);
     }
 
     @Test
@@ -77,9 +76,9 @@ class ClientServiceTest {
     @Test
     void missingEntityCannotBeReadUpdatedOrDeleted() {
         when(repository.findById(404L)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> service.findById(404L));
-        assertThrows(EntityNotFoundException.class, () -> service.update(404L, new Client()));
-        assertThrows(EntityNotFoundException.class, () -> service.delete(404L));
+        assertThrows(tn.esprit.autoloc.exception.ResourceNotFoundException.class, () -> service.findById(404L));
+        assertThrows(tn.esprit.autoloc.exception.ResourceNotFoundException.class, () -> service.update(404L, new Client()));
+        assertThrows(tn.esprit.autoloc.exception.ResourceNotFoundException.class, () -> service.deleteById(404L));
         verify(repository, never()).save(any(Client.class));
         verify(repository, never()).delete(any(Client.class));
     }
@@ -88,7 +87,7 @@ class ClientServiceTest {
     void deleteRemovesTheExistingEntity() {
         Client existing = new Client();
         when(repository.findById(1L)).thenReturn(Optional.of(existing));
-        service.delete(1L);
+        service.deleteById(1L);
         verify(repository).delete(existing);
     }
 }
