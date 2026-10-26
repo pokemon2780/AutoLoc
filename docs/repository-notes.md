@@ -23,28 +23,32 @@ Elle fournit les opérations CRUD, le tri, la pagination et des fonctionnalités
 
 Le choix de `JpaRepository` permet de réduire le code répétitif et de simplifier la couche de persistance. Spring Data JPA génère automatiquement les implémentations des interfaces Repository.
 
-### 2. Analyse SonarQube for IDE
+### 2. Couche service
 
-L'analyse statique du code avec SonarQube for IDE vise à améliorer la qualité, la lisibilité et la maintenabilité du projet AutoLoc.
+Les neuf interfaces I...Service et les neuf classes ...Service sont dans service et service.impl.
+Les repositories sont injectés par constructeur. Toutes les entités disposent de findAll et findById.
+Client et Vehicule disposent en plus de create, update et delete : ce sont les deux CRUD complets demandés.
+Les lectures utilisent @Transactional(readOnly = true), les écritures @Transactional.
+Un identifiant absent déclenche EntityNotFoundException. La création refuse un identifiant déjà renseigné.
+La modification charge l'entité existante et conserve son identifiant ainsi que ses associations.
+La gestion des associations reste distincte de la modification des attributs simples.
+Les suppressions restent soumises aux contraintes de clés étrangères MySQL.
+PaiementService expose uniquement la lecture ; la gestion des paiements via Contrat reste à développer lors du travail métier sur la composition.
 
-| Anomalie à vérifier | Règle / explication | Correction proposée |
-|---|---|---|
-| Utilisation de `System.out.println()` | Règle java:S106 : éviter l'utilisation directe des sorties console pour la journalisation. | Remplacer `System.out.println()` par un logger SLF4J utilisant `log.info()` ou `log.error()`. |
-| Imports inutilisés | Les imports non utilisés alourdissent inutilement le code et réduisent sa lisibilité. | Supprimer les imports inutilisés et optimiser les imports dans IntelliJ IDEA. |
-| Code mort ou méthodes inutilisées | Les éléments inutilisés augmentent la complexité et rendent la maintenance plus difficile. | Supprimer les méthodes et variables inutilisées après vérification de leurs références. |
+### 3. Analyse SonarQube for IDE à réaliser dans IntelliJ
 
-### 3. Bilan des corrections SonarQube
+Une exécution réelle de SonarQube for IDE n'a pas été réalisée dans cet environnement.
+Aucun résultat avant/après n'est affirmé sans rapport d'analyse.
+Lancer l'analyse du projet, relever et corriger trois anomalies effectivement signalées, puis compléter :
 
-**Nombre d'anomalies à relever et corriger :** 3 
+| Fichier et ligne | Règle SonarQube | Anomalie observée | Correction effectuée | Résultat après analyse |
+|---|---|---|---|---|
+| À renseigner | À renseigner | À renseigner | À renseigner | À renseigner |
+| À renseigner | À renseigner | À renseigner | À renseigner | À renseigner |
+| À renseigner | À renseigner | À renseigner | À renseigner | À renseigner |
 
-Résultats de l'analyse : L'analyse statique a signalé 3 problèmes de qualité du code : l'utilisation directe de System.out.println(), un champ privé inutilisé et une variable locale non utilisée.
+### 4. Validation locale
 
-Validation des corrections : Les 3 anomalies ont été corrigées. Une nouvelle analyse avec SonarQube for IDE ne signale plus ces problèmes dans les fichiers concernés (3 problèmes avant correction, 0 après correction).
-
-### 4. Conclusion
-
-L'utilisation de `JpaRepository` permet d'organiser efficacement la couche de persistance du projet AutoLoc en simplifiant l'accès aux données.
-
-SonarQube for IDE complète cette démarche en facilitant l'identification et la correction des problèmes de qualité du code.
-
-Les corrections effectivement réalisées doivent être confirmées par une nouvelle analyse avant la remise définitive du document.
+Exécuter les tests unitaires ClientServiceTest et VehiculeServiceTest, puis lancer l'application avec MySQL.
+Vérifier dans les logs : Found 9 JPA repository interfaces.
+Les tests Mockito vérifient la logique des services ; ils ne remplacent pas la vérification du schéma et des contraintes MySQL.
