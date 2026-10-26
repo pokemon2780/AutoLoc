@@ -19,7 +19,7 @@ Conserver `spring.jpa.hibernate.ddl-auto=update` et vérifier que MySQL est dém
 Pour update, fournir tous les attributs simples de l'entité. L'identifiant cible est le paramètre id ; un identifiant différent dans l'objet fourni n'est pas recopié. Les associations existantes sont conservées.
 Pour create, l'identifiant doit être null. Les associations fournies doivent respecter les contraintes JPA et référencer les entités appropriées ; aucun CRUD des associations n'est ajouté ici.
 Une suppression peut être refusée par MySQL si d'autres lignes référencent l'entité. Aucune suppression en cascade n'est ajoutée à l'occasion de ce complément.
-Les sept autres services sont en lecture seule : le CRUD complet est exigé uniquement pour deux entités dans les consignes transmises.
+Les services Client et Vehicule restent les deux CRUD complets initialement exigés. ContratService expose en complément un CRUD et les opérations sur ses paiements pour illustrer `cascade` et `orphanRemoval`.
 
 ## Vérification sous Windows
 
@@ -36,9 +36,9 @@ Les contrôleurs REST et Postman relèvent de l'atelier suivant et ne sont pas a
 
 ## SonarQube
 
-Lancer l'analyse dans IntelliJ et compléter le tableau de docs/repository-notes.md avec trois constats réels. Aucun rapport d'analyse n'est fabriqué.
+Le tableau de docs/repository-notes.md présente trois défauts concrets identifiés dans le code et leurs corrections. Une analyse SonarQube reste nécessaire pour relever trois alertes réellement émises par l'outil ; aucun rapport d'analyse n'est fabriqué.
 
 ## État de la validation du complément
 
 La commande Maven des tests a été tentée dans l'environnement de préparation. Elle a échoué avant compilation : résolution DNS de repo.maven.apache.org impossible, donc téléchargement du parent Spring Boot 4.1.1 impossible. Les 12 tests sont fournis mais n'ont pas pu être exécutés ici. La compilation, les tests et la connexion MySQL restent à confirmer localement.
-Le pom.xml existant contient aussi une double déclaration de mysql-connector-j : retirer l'un des deux blocs identiques avant le rendu.
+La double déclaration de `mysql-connector-j` a été supprimée. Le test d'intégration `ContratPaiementJpaTest` utilise H2 pour vérifier les opérations de cascade et d'orphelin ; son exécution reste à confirmer.

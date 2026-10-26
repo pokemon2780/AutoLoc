@@ -7,4 +7,14 @@ public interface IContratService {
     List<Contrat> findAll();
 
     Contrat findById(Long id);
+
+    Contrat create(Contrat contrat);
+
+    Contrat update(Long id, Contrat contrat);
+
+    void delete(Long id);
+
+    Contrat addPaiement(Long contratId, tn.esprit.autoloc.domain.Paiement paiement);
+
+    Contrat removePaiement(Long contratId, Long paiementId);
 }

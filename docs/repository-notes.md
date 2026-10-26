@@ -33,19 +33,37 @@ Un identifiant absent déclenche EntityNotFoundException. La création refuse un
 La modification charge l'entité existante et conserve son identifiant ainsi que ses associations.
 La gestion des associations reste distincte de la modification des attributs simples.
 Les suppressions restent soumises aux contraintes de clés étrangères MySQL.
-PaiementService expose uniquement la lecture ; la gestion des paiements via Contrat reste à développer lors du travail métier sur la composition.
+PaiementService expose uniquement la lecture ; la création et la suppression des paiements sont pilotées par ContratService.
+ContratService propose aussi create, update, delete, addPaiement et removePaiement. La modification des attributs simples ne remplace pas la collection des paiements.
 
-### 3. Analyse SonarQube for IDE à réaliser dans IntelliJ
+### Exemple Contrat–Paiement : cascade et orphanRemoval
 
-Une exécution réelle de SonarQube for IDE n'a pas été réalisée dans cet environnement.
-Aucun résultat avant/après n'est affirmé sans rapport d'analyse.
-Lancer l'analyse du projet, relever et corriger trois anomalies effectivement signalées, puis compléter :
+La relation `Contrat.paiements` utilise `@OneToMany(mappedBy = "contrat", cascade = CascadeType.ALL, orphanRemoval = true)`.
+Les méthodes `ajouterPaiement` et `retirerPaiement` synchronisent les deux côtés de l'association (`Paiement.contrat` est le côté propriétaire).
 
-| Fichier et ligne | Règle SonarQube | Anomalie observée | Correction effectuée | Résultat après analyse |
+| Opération | Appel | Comportement JPA attendu |
+|---|---|---|
+| Création du contrat et du paiement | `contrat.ajouterPaiement(paiement); contratRepository.save(contrat);` | Le paiement est enregistré avec le contrat (`PERSIST`). |
+| Lecture | `contratRepository.findById(id)` puis `getPaiements()` en transaction | Les paiements sont rattachés au contrat. |
+| Mise à jour du contrat | `contratService.update(id, valeurs)` | Les champs simples changent, sans écraser les paiements. |
+| Suppression d'un paiement | `contratService.removePaiement(idContrat, idPaiement)` | La suppression de la collection entraîne la suppression de la ligne Paiement (`orphanRemoval`). |
+| Suppression d'un contrat | `contratService.delete(idContrat)` | Les paiements encore rattachés sont supprimés avec le contrat (`REMOVE`). |
+
+Le test d'intégration `ContratPaiementJpaTest` couvre ces opérations avec une base H2 en mémoire. Il faut l'exécuter pour confirmer le comportement sur cette version des dépendances : `./mvnw -Dtest=ContratPaiementJpaTest test` (ou `mvnw.cmd` sous Windows).
+
+### 3. Qualité du code et vérification SonarQube
+
+Trois défauts **présents dans le code avant correction** ont été vérifiés directement dans le dépôt et corrigés. Ils ne sont **pas présentés comme des alertes réellement émises par SonarQube** : sans rapport de SonarQube for IDE ou du serveur, l'identifiant de règle, la sévérité et l'état « Resolved » restent non vérifiables.
+
+| Fichier | Règle SonarQube | Anomalie effectivement observée dans le dépôt | Correction effectuée | Vérification |
 |---|---|---|---|---|
-| À renseigner | À renseigner | À renseigner | À renseigner | À renseigner |
-| À renseigner | À renseigner | À renseigner | À renseigner | À renseigner |
-| À renseigner | À renseigner | À renseigner | À renseigner | À renseigner |
+| `pom.xml` | À relever dans l'analyse Maven/Sonar | Dépendance `mysql-connector-j` déclarée deux fois | Suppression du doublon | Une seule déclaration dans le POM corrigé |
+| `Contrat.java` | À relever si signalée | `paiements` sans cascade ni `orphanRemoval`, contrairement au comportement demandé | `cascade = CascadeType.ALL`, `orphanRemoval = true` | Test JPA ajouté, exécution à confirmer |
+| `Contrat.java` / `ContratService.java` | À relever si signalée | Association bidirectionnelle non synchronisée et absence d'opérations métier pour retirer un paiement | Helpers d'association et méthodes `addPaiement`/`removePaiement` | Test JPA ajouté, exécution à confirmer |
+
+**Important :** les deux dernières lignes sont des défauts de comportement JPA constatés par revue de code, pas nécessairement des *issues SonarQube*. Pour un tableau portant sur « trois anomalies réellement détectées par SonarQube », ouvrir l'onglet *SonarQube for IDE → Findings* d'IntelliJ, relever trois alertes exactes (fichier, ligne, règle), les corriger, puis relancer l'analyse. Ne pas inventer de références de règles ou de résultats.
+
+**Exemple chiffré fictif pour la mise en page uniquement (non mesuré)** : 3 défauts examinés, 3 corrections proposées, 0 résultat SonarQube confirmé. Ces chiffres ne sont pas des métriques SonarQube.
 
 ### 4. Validation locale
 
