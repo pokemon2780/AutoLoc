@@ -7,7 +7,7 @@ import tn.esprit.autoloc.domain.Contrat;
 import tn.esprit.autoloc.service.IContratService;
 
 @RestController
-@RequestMapping("/api/contrats")
+@RequestMapping("/contrats")
 public class ContratController {
     private final IContratService service;
 

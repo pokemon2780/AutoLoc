@@ -6,7 +6,7 @@ import tn.esprit.autoloc.domain.Paiement;
 import tn.esprit.autoloc.service.IPaiementService;
 
 @RestController
-@RequestMapping("/api/paiements")
+@RequestMapping("/paiements")
 public class PaiementController {
     private final IPaiementService service;
 
