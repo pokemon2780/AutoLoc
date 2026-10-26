@@ -55,3 +55,14 @@ Les numéros de règles doivent être relevés dans SonarQube for IDE sur la mac
 3. POST retourne 201 car une ressource est créée. DELETE retourne 204 car la suppression réussit sans corps. Une ressource absente produit 404 car `ResourceNotFoundException` est interceptée par le gestionnaire global.
 4. `PaiementController` est en lecture seule car les paiements sont gérés par le cycle de vie de Contrat. Un POST sur `/api/paiements` doit donc recevoir 405 Method Not Allowed.
 5. Exposer directement les entités JPA peut révéler des champs internes, provoquer des boucles JSON et coupler l'API au modèle de persistance. Les DTO réduiront ces risques.
+
+
+## F. Vérification finale Atelier 5
+
+- Les neuf contrôleurs REST sont présents sous `web.controller`.
+- Tous les contrôleurs sont documentés avec `@Tag`, `@Operation` et `@ApiResponse(s)`.
+- Les dépendances vers la couche métier utilisent uniquement les interfaces `I...Service`.
+- `PaiementController` reste en lecture seule.
+- `Contrat.paiements` utilise `@JsonManagedReference("contrat-paiements")` et `Paiement.contrat` utilise `@JsonBackReference("contrat-paiements")`.
+- Le gestionnaire global produit les champs `statut`, `message` et `horodatage` pour les erreurs 400/404.
+- La collection Postman couvre désormais les neuf contrôleurs, y compris le scénario Contrat/Paiement et le POST Paiement attendu à 405.
