@@ -4,16 +4,9 @@ import java.util.List;
 import tn.esprit.autoloc.domain.Reservation;
 
 public interface IReservationService {
-    List<Reservation> findAll();
-
+    Reservation create(Reservation reservation);
     Reservation findById(Long id);
-    Reservation create(Reservation entity);
-
-    Reservation update(Long id, Reservation entity);
-
-    void delete(Long id);
-
-    default void deleteById(Long id) {
-        delete(id);
-    }
+    List<Reservation> findAll();
+    Reservation update(Long id, Reservation reservation);
+    void deleteById(Long id);
 }

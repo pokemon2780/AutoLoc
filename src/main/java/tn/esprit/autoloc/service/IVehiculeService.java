@@ -4,17 +4,9 @@ import java.util.List;
 import tn.esprit.autoloc.domain.Vehicule;
 
 public interface IVehiculeService {
-    List<Vehicule> findAll();
-
-    Vehicule findById(Long id);
-
     Vehicule create(Vehicule vehicule);
-
+    Vehicule findById(Long id);
+    List<Vehicule> findAll();
     Vehicule update(Long id, Vehicule vehicule);
-
-    void delete(Long id);
-
-    default void deleteById(Long id) {
-        delete(id);
-    }
+    void deleteById(Long id);
 }

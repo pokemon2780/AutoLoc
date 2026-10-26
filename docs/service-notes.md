@@ -1,61 +1,61 @@
-# Atelier 4 — Inversion de contrôle, injection de dépendances et services AutoLoc
+# Atelier 4 — Inversion de contrôle, injection de dépendances et couche Service
 
 ## A. Modes d'injection comparés
 
 | Critère | Injection par constructeur | Injection par attribut `@Autowired` |
 |---|---|---|
 | Champ `final` | Oui | Non, en pratique |
-| Dépendance visible dans le constructeur | Oui | Non |
-| Instanciation hors de Spring | Possible avec un repository de test | Risque de dépendance `null` |
-| Signalement SonarQube | Mode recommandé | `java:S6813` peut être signalée, à vérifier dans l'IDE |
+| Dépendance visible | Oui, dans le constructeur | Non |
+| Utilisable hors conteneur | Oui, en fournissant une dépendance | Risque de dépendance `null` |
+| SonarQube | Recommandée | `java:S6813` peut être signalée |
 
-Le projet garde partout l'injection par constructeur. `@Autowired` n'est pas nécessaire lorsqu'il n'existe qu'un constructeur.
+Convention retenue dans AutoLoc : **injection par constructeur**, champs `private final`, dépendances typées par interface. Les implémentations utilisent `@RequiredArgsConstructor`, donc Spring utilise le constructeur généré par Lombok sans nécessiter `@Autowired`.
 
-## B. Services et dépendances injectées
+## B. Services
 
-| Service (implémentation existante) | Dépendance injectée | Mode | Justification |
+| Service | Dépendance injectée | Mode | Rôle / règle métier |
 |---|---|---|---|
-| `AgenceService` | `IAgenceRepository` | Constructeur | Isoler l'accès aux agences |
-| `ClientService` | `IClientRepository` | Constructeur | Isoler l'accès aux clients |
-| `ContratService` | `IContratRepository` | Constructeur | Centraliser CRUD et gestion des paiements |
-| `EmployeService` | `IEmployeRepository` | Constructeur | Isoler la persistance des employés |
-| `EquipementService` | `IEquipementRepository` | Constructeur | Encadrer le libellé obligatoire |
-| `MaintenanceService` | `IMaintenanceRepository` | Constructeur | Contrôler les dates |
-| `PaiementService` | `IPaiementRepository` | Constructeur | Lecture seule ; écritures via contrat |
-| `ReservationService` | `IReservationRepository` | Constructeur | Vérifier l'ordre des dates |
-| `VehiculeService` | `IVehiculeRepository` | Constructeur | Refuser les tarifs négatifs |
+| `AgenceServiceImpl` | `IAgenceRepository` | Constructeur | CRUD ; nom obligatoire |
+| `EmployeServiceImpl` | `IEmployeRepository` | Constructeur | CRUD ; nom et rôle obligatoires |
+| `VehiculeServiceImpl` | `IVehiculeRepository` | Constructeur | CRUD ; tarif journalier non négatif |
+| `EquipementServiceImpl` | `IEquipementRepository` | Constructeur | CRUD ; libellé obligatoire |
+| `ClientServiceImpl` | `IClientRepository` | Constructeur | CRUD ; nom et e-mail obligatoires |
+| `ReservationServiceImpl` | `IReservationRepository` | Constructeur | CRUD ; date de fin >= date de début |
+| `ContratServiceImpl` | `IContratRepository` | Constructeur | CRUD ; montant total non négatif ; paiements gérés via Contrat |
+| `PaiementServiceImpl` | `IPaiementRepository` | Constructeur | Lecture seule : `findById`, `findAll` |
+| `MaintenanceServiceImpl` | `IMaintenanceRepository` | Constructeur | CRUD ; date de fin >= date de début |
 
-Les neuf classes portent `@Service` et sont détectées sous `tn.esprit.autoloc`. Leurs dépendances `private final` sont injectées par un constructeur explicite (équivalent fonctionnel de `@RequiredArgsConstructor` utilisé dans le support). Aucun repository n'est instancié avec `new`.
+Les contrôleurs injectent chacun une interface `I…Service`, jamais un repository directement.
 
-Chaque contrôleur du package `web.controller` porte `@RestController` et reçoit **une interface `I…Service`** par constructeur, jamais un repository directement.
+## C. Messages d'erreur du conteneur
 
-## C. Diagnostic des trois erreurs du conteneur
-
-1. **`NoSuchBeanDefinitionException` pour `IContratService` :** l'implémentation manque `@Service` ou se trouve hors des packages scannés. Corriger l'annotation et vérifier le package de la classe.
-2. **`NoUniqueBeanDefinitionException` pour les notificateurs :** deux beans satisfont la même interface. Mettre `@Primary` sur l'implémentation par défaut ou `@Qualifier("emailNotificateur")` sur le paramètre du constructeur.
-3. **Dépendance circulaire Client ↔ Réservation :** les constructeurs ont besoin l'un de l'autre pour terminer l'instanciation. Extraire la responsabilité partagée dans un troisième service ou réorganiser le flux métier pour rendre les dépendances unidirectionnelles.
+1. **`NoSuchBeanDefinitionException` pour `IContratService`** : `@Service` oublié sur `ContratServiceImpl` ou classe placée hors du package scanné.
+2. **`NoUniqueBeanDefinitionException`** : plusieurs beans implémentent le même type. Solution : `@Primary` sur l'implémentation par défaut ou `@Qualifier` au point d'injection.
+3. **Dépendance circulaire** : deux services s'injectent mutuellement. Avec l'injection constructeur, le cycle empêche la création des beans. Il faut extraire la responsabilité commune ou rendre les dépendances unidirectionnelles.
 
 ## D. Anomalies SonarQube for IDE
 
-Le support demande une expérience temporaire et la restauration du code. Les règles suivantes sont connues, mais **leur détection réelle doit être confirmée par les résultats SonarQube for IDE** ; aucune capture ni rapport n'est fourni.
+| Règle | Problème | Correction |
+|---|---|---|
+| `java:S6813` | Injection par attribut | Injection par constructeur |
+| `java:S112` | Exception générique `RuntimeException` | `ResourceNotFoundException` |
+| `java:S1128` | Import inutilisé | Supprimer l'import |
 
-| Règle | Exemple analysé / anomalie | Correction à conserver | Statut |
-|---|---|---|---|
-| `java:S112` | Lever `RuntimeException` générique lors d'une recherche | `EntityNotFoundException` spécifique | Correction antérieure confirmée par l'étudiante ; analyse à conserver |
-| `java:S6813` | `@Autowired` sur un attribut au lieu d'une injection constructeur | Champ `final` et constructeur | Code actuellement conforme ; déclenchement non vérifié |
-| `java:S1128` | Import Java non utilisé | Supprimer l'import inutile | Exemple à vérifier dans l'IDE ; ne pas présenter comme issue détectée |
+Les déclenchements exacts restent à confirmer dans SonarQube for IDE, comme demandé dans le support.
 
 ## E. Questions de compréhension
 
-1. **Qui fait `new ContratService` ?** Le conteneur IoC Spring crée le bean lors du démarrage et résout son repository à partir du contexte ; notre code ne fait pas cet appel.
-2. **Pourquoi injecter `IContratService` ?** Le contrôleur dépend d'un contrat abstrait, ce qui permet de substituer une implémentation ou un mock pour les tests.
-3. **Pourquoi le singleton reste-t-il sans état ?** Il est partagé entre requêtes concurrentes. Stocker un « contrat courant » dans un champ mutable ferait lire à un utilisateur le contrat d'un autre.
-4. **Pourquoi charger avant `save` lors de `update` ?** Pour préserver l'identifiant et les associations, notamment les paiements soumis à `orphanRemoval`, puis ne modifier que les attributs autorisés.
-5. **Différences :** `@Component` détecte automatiquement une classe du projet, `@Bean` déclare explicitement un objet via une méthode de configuration. `@Primary` choisit le bean préféré par défaut, `@Qualifier` cible explicitement l'un des beans. `IPaiementService` reste en lecture seule car les écritures appartiennent au cycle de vie du `Contrat`.
+1. **Où est le `new ContratServiceImpl` ?** Il n'est pas écrit dans le code applicatif. Spring crée le bean détecté grâce à `@Service`.
+2. **Pourquoi le contrôleur dépend-il de `IContratService` ?** Pour dépendre d'une abstraction et réduire le couplage.
+3. **Pourquoi un singleton doit-il rester sans état ?** Une instance est partagée entre plusieurs requêtes. Un champ mutable comme « contrat courant » provoquerait des interférences entre utilisateurs.
+4. **Pourquoi charger l'entité existante avant `save` ?** Pour préserver l'identifiant et les associations non modifiées, notamment les collections avec `orphanRemoval`.
+5. **`@Component` vs `@Bean`, `@Primary` vs `@Qualifier`, et Paiement ?** `@Component` rend une classe détectable par scan ; `@Bean` déclare explicitement un objet dans une configuration. `@Primary` choisit un candidat par défaut ; `@Qualifier` sélectionne explicitement un bean. `IPaiementService` est en lecture seule parce que les écritures de paiements passent par `Contrat`.
 
-## Vérifications à effectuer
+## Vérifications finales
 
-1. Vérifier le démarrage Spring Boot avec MySQL et les 9 repositories.
-2. Vérifier les routes `/api/agences`, `/api/clients`, `/api/contrats`, `/api/employes`, `/api/equipements`, `/api/maintenances`, `/api/paiements`, `/api/reservations`, `/api/vehicules`.
-3. Exécuter SonarQube for IDE sur `service`, `web.controller` et conserver les captures des trois alertes réellement détectées.
-4. Les contrôleurs sont ajoutés sur demande, bien que le PDF réserve leur validation REST à l'Atelier 5.
+- 9 interfaces `I…Service`.
+- 9 classes `…ServiceImpl`.
+- `@Service` + `@RequiredArgsConstructor` sur chaque implémentation.
+- Repository injecté via un champ `private final`.
+- 9 contrôleurs REST injectant les interfaces de service.
+- Aucun `new Repository` et aucune injection par attribut.

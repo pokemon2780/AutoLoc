@@ -4,17 +4,9 @@ import java.util.List;
 import tn.esprit.autoloc.domain.Client;
 
 public interface IClientService {
-    List<Client> findAll();
-
-    Client findById(Long id);
-
     Client create(Client client);
-
+    Client findById(Long id);
+    List<Client> findAll();
     Client update(Long id, Client client);
-
-    void delete(Long id);
-
-    default void deleteById(Long id) {
-        delete(id);
-    }
+    void deleteById(Long id);
 }
