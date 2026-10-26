@@ -7,7 +7,7 @@ import tn.esprit.autoloc.domain.Equipement;
 import tn.esprit.autoloc.service.IEquipementService;
 
 @RestController
-@RequestMapping("/api/equipements")
+@RequestMapping("/equipements")
 public class EquipementController {
     private final IEquipementService service;
 
