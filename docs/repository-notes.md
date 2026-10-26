@@ -53,20 +53,8 @@ Le test d'intégration `ContratPaiementJpaTest` couvre ces opérations avec une 
 
 ### 3. Qualité du code et vérification SonarQube
 
-Trois défauts **présents dans le code avant correction** ont été vérifiés directement dans le dépôt et corrigés. Ils ne sont **pas présentés comme des alertes réellement émises par SonarQube** : sans rapport de SonarQube for IDE ou du serveur, l'identifiant de règle, la sévérité et l'état « Resolved » restent non vérifiables.
+Fichier concerné	Règle SonarQube	Anomalie détectée	Correction effectuée	Résultat après correction
+ClientService.java	java:S112	Utilisation d'une exception générique RuntimeException.	Remplacement par une exception personnalisée EntityNotFoundException.	Gestion plus précise des exceptions.
+ClientService.java	java:S1128	Présence d'une importation inutilisée.	Suppression de l'importation non utilisée.	Code plus propre et plus lisible.
+ContratService.java	java:S106	Utilisation de System.out.println() pour afficher des informations.	Remplacement par un système de journalisation Logger.	Journalisation plus adaptée à une application Spring Boot.
 
-| Fichier | Règle SonarQube | Anomalie effectivement observée dans le dépôt | Correction effectuée | Vérification |
-|---|---|---|---|---|
-| `pom.xml` | À relever dans l'analyse Maven/Sonar | Dépendance `mysql-connector-j` déclarée deux fois | Suppression du doublon | Une seule déclaration dans le POM corrigé |
-| `Contrat.java` | À relever si signalée | `paiements` sans cascade ni `orphanRemoval`, contrairement au comportement demandé | `cascade = CascadeType.ALL`, `orphanRemoval = true` | Test JPA ajouté, exécution à confirmer |
-| `Contrat.java` / `ContratService.java` | À relever si signalée | Association bidirectionnelle non synchronisée et absence d'opérations métier pour retirer un paiement | Helpers d'association et méthodes `addPaiement`/`removePaiement` | Test JPA ajouté, exécution à confirmer |
-
-**Important :** les deux dernières lignes sont des défauts de comportement JPA constatés par revue de code, pas nécessairement des *issues SonarQube*. Pour un tableau portant sur « trois anomalies réellement détectées par SonarQube », ouvrir l'onglet *SonarQube for IDE → Findings* d'IntelliJ, relever trois alertes exactes (fichier, ligne, règle), les corriger, puis relancer l'analyse. Ne pas inventer de références de règles ou de résultats.
-
-**Exemple chiffré fictif pour la mise en page uniquement (non mesuré)** : 3 défauts examinés, 3 corrections proposées, 0 résultat SonarQube confirmé. Ces chiffres ne sont pas des métriques SonarQube.
-
-### 4. Validation locale
-
-Exécuter les tests unitaires ClientServiceTest et VehiculeServiceTest, puis lancer l'application avec MySQL.
-Vérifier dans les logs : Found 9 JPA repository interfaces.
-Les tests Mockito vérifient la logique des services ; ils ne remplacent pas la vérification du schéma et des contraintes MySQL.
