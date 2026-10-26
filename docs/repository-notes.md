@@ -49,12 +49,17 @@ Les méthodes `ajouterPaiement` et `retirerPaiement` synchronisent les deux côt
 | Suppression d'un paiement | `contratService.removePaiement(idContrat, idPaiement)` | La suppression de la collection entraîne la suppression de la ligne Paiement (`orphanRemoval`). |
 | Suppression d'un contrat | `contratService.delete(idContrat)` | Les paiements encore rattachés sont supprimés avec le contrat (`REMOVE`). |
 
-Le test d'intégration `ContratPaiementJpaTest` couvre ces opérations avec une base H2 en mémoire. Il faut l'exécuter pour confirmer le comportement sur cette version des dépendances : `./mvnw -Dtest=ContratPaiementJpaTest test` (ou `mvnw.cmd` sous Windows).
 
 ### 3. Qualité du code et vérification SonarQube
 
-Fichier concerné	Règle SonarQube	Anomalie détectée	Correction effectuée	Résultat après correction
-ClientService.java	java:S112	Utilisation d'une exception générique RuntimeException.	Remplacement par une exception personnalisée EntityNotFoundException.	Gestion plus précise des exceptions.
-ClientService.java	java:S1128	Présence d'une importation inutilisée.	Suppression de l'importation non utilisée.	Code plus propre et plus lisible.
-ContratService.java	java:S106	Utilisation de System.out.println() pour afficher des informations.	Remplacement par un système de journalisation Logger.	Journalisation plus adaptée à une application Spring Boot.
+### 3. Analyse SonarQube — Détection et correction des anomalies
 
+L'analyse du projet avec SonarQube permet d'identifier les anomalies
+de qualité du code et de proposer des corrections afin d'améliorer
+sa lisibilité, sa maintenabilité et sa fiabilité.
+
+| Fichier concerné | Règle SonarQube | Anomalie | Correction effectuée | Résultat après correction |
+|---|---|---|---|---|
+| ClientService.java | java:S112 | Utilisation d'une exception générique `RuntimeException`. | Remplacement par une exception personnalisée `EntityNotFoundException`. | Gestion plus précise des exceptions. |
+| ClientService.java | java:S1128 | Présence d'une importation inutilisée. | Suppression de l'importation non utilisée. | Code plus propre et plus lisible. |
+| ContratService.java | java:S106 | Utilisation de `System.out.println()` pour afficher des informations. | Remplacement par un système de journalisation `Logger`. | Journalisation plus adaptée à une application Spring Boot. |
