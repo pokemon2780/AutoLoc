@@ -9,8 +9,11 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.autoloc.domain.Contrat;
-import tn.esprit.autoloc.service.IContratService;
+import tn.esprit.autoloc.web.dto.ContratRequest;
+import tn.esprit.autoloc.web.dto.ContratResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import tn.esprit.autoloc.service.dto.ContratDtoService;
 
 @RestController
 @RequestMapping("/contrats")
@@ -18,12 +21,12 @@ import tn.esprit.autoloc.service.IContratService;
 @Tag(name = "Contrats", description = "Gestion des contrats de location")
 public class ContratController {
 
-    private final IContratService service;
+    private final ContratDtoService service;
 
     @Operation(summary = "Lister les contrats")
     @ApiResponse(responseCode = "200", description = "Liste des contrats retournée")
     @GetMapping
-    public List<Contrat> findAll() {
+    public List<ContratResponse> findAll() {
         return service.findAll();
     }
 
@@ -33,7 +36,7 @@ public class ContratController {
             @ApiResponse(responseCode = "404", description = "Contrat introuvable")
     })
     @GetMapping("/{id}")
-    public Contrat findById(@Parameter(description = "Identifiant du contrat") @PathVariable Long id) {
+    public ContratResponse findById(@Parameter(description = "Identifiant du contrat") @PathVariable @Positive Long id) {
         return service.findById(id);
     }
 
@@ -44,7 +47,7 @@ public class ContratController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Contrat create(@RequestBody Contrat entity) {
+    public ContratResponse create(@Valid @RequestBody ContratRequest entity) {
         return service.create(entity);
     }
 
@@ -55,9 +58,9 @@ public class ContratController {
             @ApiResponse(responseCode = "404", description = "Contrat introuvable")
     })
     @PutMapping("/{id}")
-    public Contrat update(
-            @Parameter(description = "Identifiant du contrat") @PathVariable Long id,
-            @RequestBody Contrat entity) {
+    public ContratResponse update(
+            @Parameter(description = "Identifiant du contrat") @PathVariable @Positive Long id,
+            @Valid @RequestBody ContratRequest entity) {
         return service.update(id, entity);
     }
 
@@ -68,7 +71,27 @@ public class ContratController {
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@Parameter(description = "Identifiant du contrat") @PathVariable Long id) {
+    public void delete(@Parameter(description = "Identifiant du contrat") @PathVariable @Positive Long id) {
         service.deleteById(id);
+    }
+
+    @Operation(summary = "Ajouter un paiement au contrat")
+    @ApiResponses({@ApiResponse(responseCode = "201", description = "Paiement ajouté"),
+            @ApiResponse(responseCode = "400", description = "Paiement invalide"),
+            @ApiResponse(responseCode = "404", description = "Contrat introuvable")})
+    @PostMapping("/{id}/paiements")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ContratResponse addPaiement(@PathVariable @Positive Long id,
+            @Valid @RequestBody tn.esprit.autoloc.web.dto.PaiementRequest request) {
+        return service.addPaiement(id, request);
+    }
+
+    @Operation(summary = "Retirer un paiement du contrat")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Paiement retiré"),
+            @ApiResponse(responseCode = "404", description = "Contrat ou paiement introuvable")})
+    @DeleteMapping("/{id}/paiements/{paiementId}")
+    public ContratResponse removePaiement(@PathVariable @Positive Long id,
+            @PathVariable @Positive Long paiementId) {
+        return service.removePaiement(id, paiementId);
     }
 }

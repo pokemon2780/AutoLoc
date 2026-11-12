@@ -9,8 +9,11 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.autoloc.domain.Vehicule;
-import tn.esprit.autoloc.service.IVehiculeService;
+import tn.esprit.autoloc.web.dto.VehiculeRequest;
+import tn.esprit.autoloc.web.dto.VehiculeResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import tn.esprit.autoloc.service.dto.VehiculeDtoService;
 
 @RestController
 @RequestMapping("/vehicules")
@@ -18,12 +21,12 @@ import tn.esprit.autoloc.service.IVehiculeService;
 @Tag(name = "Vehicules", description = "Gestion des véhicules AutoLoc")
 public class VehiculeController {
 
-    private final IVehiculeService service;
+    private final VehiculeDtoService service;
 
     @Operation(summary = "Lister les véhicules")
     @ApiResponse(responseCode = "200", description = "Liste des véhicules retournée")
     @GetMapping
-    public List<Vehicule> findAll() {
+    public List<VehiculeResponse> findAll() {
         return service.findAll();
     }
 
@@ -33,7 +36,7 @@ public class VehiculeController {
             @ApiResponse(responseCode = "404", description = "Véhicule introuvable")
     })
     @GetMapping("/{id}")
-    public Vehicule findById(@Parameter(description = "Identifiant du véhicule") @PathVariable Long id) {
+    public VehiculeResponse findById(@Parameter(description = "Identifiant du véhicule") @PathVariable @Positive Long id) {
         return service.findById(id);
     }
 
@@ -44,7 +47,7 @@ public class VehiculeController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Vehicule create(@RequestBody Vehicule entity) {
+    public VehiculeResponse create(@Valid @RequestBody VehiculeRequest entity) {
         return service.create(entity);
     }
 
@@ -55,9 +58,9 @@ public class VehiculeController {
             @ApiResponse(responseCode = "404", description = "Véhicule introuvable")
     })
     @PutMapping("/{id}")
-    public Vehicule update(
-            @Parameter(description = "Identifiant du véhicule") @PathVariable Long id,
-            @RequestBody Vehicule entity) {
+    public VehiculeResponse update(
+            @Parameter(description = "Identifiant du véhicule") @PathVariable @Positive Long id,
+            @Valid @RequestBody VehiculeRequest entity) {
         return service.update(id, entity);
     }
 
@@ -68,7 +71,7 @@ public class VehiculeController {
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@Parameter(description = "Identifiant du véhicule") @PathVariable Long id) {
+    public void delete(@Parameter(description = "Identifiant du véhicule") @PathVariable @Positive Long id) {
         service.deleteById(id);
     }
 }

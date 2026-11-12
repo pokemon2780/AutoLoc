@@ -9,8 +9,11 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.autoloc.domain.Client;
-import tn.esprit.autoloc.service.IClientService;
+import tn.esprit.autoloc.web.dto.ClientRequest;
+import tn.esprit.autoloc.web.dto.ClientResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import tn.esprit.autoloc.service.dto.ClientDtoService;
 
 @RestController
 @RequestMapping("/clients")
@@ -18,12 +21,12 @@ import tn.esprit.autoloc.service.IClientService;
 @Tag(name = "Clients", description = "Gestion des clients AutoLoc")
 public class ClientController {
 
-    private final IClientService service;
+    private final ClientDtoService service;
 
     @Operation(summary = "Lister les clients")
     @ApiResponse(responseCode = "200", description = "Liste des clients retournée")
     @GetMapping
-    public List<Client> findAll() {
+    public List<ClientResponse> findAll() {
         return service.findAll();
     }
 
@@ -33,7 +36,7 @@ public class ClientController {
             @ApiResponse(responseCode = "404", description = "Client introuvable")
     })
     @GetMapping("/{id}")
-    public Client findById(@Parameter(description = "Identifiant du client") @PathVariable Long id) {
+    public ClientResponse findById(@Parameter(description = "Identifiant du client") @PathVariable @Positive Long id) {
         return service.findById(id);
     }
 
@@ -44,7 +47,7 @@ public class ClientController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Client create(@RequestBody Client entity) {
+    public ClientResponse create(@Valid @RequestBody ClientRequest entity) {
         return service.create(entity);
     }
 
@@ -55,9 +58,9 @@ public class ClientController {
             @ApiResponse(responseCode = "404", description = "Client introuvable")
     })
     @PutMapping("/{id}")
-    public Client update(
-            @Parameter(description = "Identifiant du client") @PathVariable Long id,
-            @RequestBody Client entity) {
+    public ClientResponse update(
+            @Parameter(description = "Identifiant du client") @PathVariable @Positive Long id,
+            @Valid @RequestBody ClientRequest entity) {
         return service.update(id, entity);
     }
 
@@ -68,7 +71,7 @@ public class ClientController {
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@Parameter(description = "Identifiant du client") @PathVariable Long id) {
+    public void delete(@Parameter(description = "Identifiant du client") @PathVariable @Positive Long id) {
         service.deleteById(id);
     }
 }
