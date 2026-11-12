@@ -1,0 +1,43 @@
+name: Atelier 6 - tests et captures
+on:
+  push:
+    branches: [main, atelier6-dto-validation]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Tests Java et API sur H2
+        run: bash mvnw -B test
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer le navigateur pour les captures
+        run: |
+          pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Lancer une instance temporaire et capturer Swagger
+        run: |
+          bash mvnw -B spring-boot:test-run > application-demo.log 2>&1 &
+          APP_PID=$!
+          trap 'kill "$APP_PID" 2>/dev/null || true' EXIT
+          python scripts/capture_atelier6.py
+      - name: Conserver les rapports et captures réelles
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: atelier6-verification
+          path: |
+            target/surefire-reports/
+            docs/captures/atelier6/
+            application-demo.log
+          if-no-files-found: warn

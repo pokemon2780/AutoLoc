@@ -8,8 +8,11 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.autoloc.domain.Equipement;
-import tn.esprit.autoloc.service.IEquipementService;
+import tn.esprit.autoloc.web.dto.EquipementRequest;
+import tn.esprit.autoloc.web.dto.EquipementResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import tn.esprit.autoloc.service.dto.EquipementDtoService;
 
 @RestController
 @RequestMapping("/equipements")
@@ -17,12 +20,12 @@ import tn.esprit.autoloc.service.IEquipementService;
 @Tag(name = "Equipements", description = "Gestion des équipements")
 public class EquipementController {
 
-    private final IEquipementService service;
+    private final EquipementDtoService service;
 
     @Operation(summary = "Lister les équipements")
     @ApiResponse(responseCode = "200", description = "Liste des équipements retournée")
     @GetMapping
-    public List<Equipement> findAll() { return service.findAll(); }
+    public List<EquipementResponse> findAll() { return service.findAll(); }
 
     @Operation(summary = "Consulter un équipement")
     @ApiResponses({
@@ -30,7 +33,7 @@ public class EquipementController {
             @ApiResponse(responseCode = "404", description = "Équipement introuvable")
     })
     @GetMapping("/{id}")
-    public Equipement findById(@PathVariable Long id) { return service.findById(id); }
+    public EquipementResponse findById(@PathVariable @Positive Long id) { return service.findById(id); }
 
     @Operation(summary = "Créer un équipement")
     @ApiResponses({
@@ -39,7 +42,7 @@ public class EquipementController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Equipement create(@RequestBody Equipement entity) { return service.create(entity); }
+    public EquipementResponse create(@Valid @RequestBody EquipementRequest entity) { return service.create(entity); }
 
     @Operation(summary = "Modifier un équipement")
     @ApiResponses({
@@ -48,7 +51,7 @@ public class EquipementController {
             @ApiResponse(responseCode = "404", description = "Équipement introuvable")
     })
     @PutMapping("/{id}")
-    public Equipement update(@PathVariable Long id, @RequestBody Equipement entity) {
+    public EquipementResponse update(@PathVariable @Positive Long id, @Valid @RequestBody EquipementRequest entity) {
         return service.update(id, entity);
     }
 
@@ -59,5 +62,5 @@ public class EquipementController {
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) { service.deleteById(id); }
+    public void delete(@PathVariable @Positive Long id) { service.deleteById(id); }
 }

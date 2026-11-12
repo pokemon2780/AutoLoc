@@ -86,8 +86,8 @@ class VehiculeServiceTest {
     @Test
     void deleteRemovesTheExistingEntity() {
         Vehicule existing = new Vehicule();
-        when(repository.findById(1L)).thenReturn(Optional.of(existing));
+        when(repository.existsById(1L)).thenReturn(true);
         service.deleteById(1L);
-        verify(repository).delete(existing);
+        verify(repository).deleteById(1L);
     }
 }

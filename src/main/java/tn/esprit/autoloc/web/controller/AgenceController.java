@@ -9,8 +9,11 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.autoloc.domain.Agence;
-import tn.esprit.autoloc.service.IAgenceService;
+import tn.esprit.autoloc.web.dto.AgenceRequest;
+import tn.esprit.autoloc.web.dto.AgenceResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import tn.esprit.autoloc.service.dto.AgenceDtoService;
 
 @RestController
 @RequestMapping("/agences")
@@ -18,12 +21,12 @@ import tn.esprit.autoloc.service.IAgenceService;
 @Tag(name = "Agences", description = "Gestion des agences AutoLoc")
 public class AgenceController {
 
-    private final IAgenceService service;
+    private final AgenceDtoService service;
 
     @Operation(summary = "Lister les agences")
     @ApiResponse(responseCode = "200", description = "Liste des agences retournée")
     @GetMapping
-    public List<Agence> findAll() {
+    public List<AgenceResponse> findAll() {
         return service.findAll();
     }
 
@@ -33,7 +36,7 @@ public class AgenceController {
             @ApiResponse(responseCode = "404", description = "Agence introuvable")
     })
     @GetMapping("/{id}")
-    public Agence findById(@Parameter(description = "Identifiant de l'agence") @PathVariable Long id) {
+    public AgenceResponse findById(@Parameter(description = "Identifiant de l'agence") @PathVariable @Positive Long id) {
         return service.findById(id);
     }
 
@@ -44,7 +47,7 @@ public class AgenceController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Agence create(@RequestBody Agence entity) {
+    public AgenceResponse create(@Valid @RequestBody AgenceRequest entity) {
         return service.create(entity);
     }
 
@@ -55,9 +58,9 @@ public class AgenceController {
             @ApiResponse(responseCode = "404", description = "Agence introuvable")
     })
     @PutMapping("/{id}")
-    public Agence update(
-            @Parameter(description = "Identifiant de l'agence") @PathVariable Long id,
-            @RequestBody Agence entity) {
+    public AgenceResponse update(
+            @Parameter(description = "Identifiant de l'agence") @PathVariable @Positive Long id,
+            @Valid @RequestBody AgenceRequest entity) {
         return service.update(id, entity);
     }
 
@@ -68,7 +71,7 @@ public class AgenceController {
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@Parameter(description = "Identifiant de l'agence") @PathVariable Long id) {
+    public void delete(@Parameter(description = "Identifiant de l'agence") @PathVariable @Positive Long id) {
         service.deleteById(id);
     }
 }

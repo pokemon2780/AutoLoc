@@ -59,8 +59,8 @@ class ContratPaiementJpaTest {
         secondPaiement.setMontant(new BigDecimal("25.00"));
         Contrat forDeletion = contrats.findById(contratId).orElseThrow();
         forDeletion.ajouterPaiement(secondPaiement);
-        contrats.saveAndFlush(forDeletion);
-        Long secondId = secondPaiement.getIdPaiement();
+        Contrat savedForDeletion = contrats.saveAndFlush(forDeletion);
+        Long secondId = savedForDeletion.getPaiements().get(0).getIdPaiement();
         entityManager.clear();
 
         contrats.deleteById(contratId);

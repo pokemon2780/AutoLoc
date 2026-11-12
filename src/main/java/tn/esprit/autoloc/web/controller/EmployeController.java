@@ -9,8 +9,11 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.autoloc.domain.Employe;
-import tn.esprit.autoloc.service.IEmployeService;
+import tn.esprit.autoloc.web.dto.EmployeRequest;
+import tn.esprit.autoloc.web.dto.EmployeResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import tn.esprit.autoloc.service.dto.EmployeDtoService;
 
 @RestController
 @RequestMapping("/employes")
@@ -18,12 +21,12 @@ import tn.esprit.autoloc.service.IEmployeService;
 @Tag(name = "Employes", description = "Gestion des employés")
 public class EmployeController {
 
-    private final IEmployeService service;
+    private final EmployeDtoService service;
 
     @Operation(summary = "Lister les employés")
     @ApiResponse(responseCode = "200", description = "Liste des employés retournée")
     @GetMapping
-    public List<Employe> findAll() { return service.findAll(); }
+    public List<EmployeResponse> findAll() { return service.findAll(); }
 
     @Operation(summary = "Consulter un employé")
     @ApiResponses({
@@ -31,7 +34,7 @@ public class EmployeController {
             @ApiResponse(responseCode = "404", description = "Employé introuvable")
     })
     @GetMapping("/{id}")
-    public Employe findById(@Parameter(description = "Identifiant de l'employé") @PathVariable Long id) {
+    public EmployeResponse findById(@Parameter(description = "Identifiant de l'employé") @PathVariable @Positive Long id) {
         return service.findById(id);
     }
 
@@ -42,7 +45,7 @@ public class EmployeController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Employe create(@RequestBody Employe entity) { return service.create(entity); }
+    public EmployeResponse create(@Valid @RequestBody EmployeRequest entity) { return service.create(entity); }
 
     @Operation(summary = "Modifier un employé")
     @ApiResponses({
@@ -51,7 +54,7 @@ public class EmployeController {
             @ApiResponse(responseCode = "404", description = "Employé introuvable")
     })
     @PutMapping("/{id}")
-    public Employe update(@PathVariable Long id, @RequestBody Employe entity) {
+    public EmployeResponse update(@PathVariable @Positive Long id, @Valid @RequestBody EmployeRequest entity) {
         return service.update(id, entity);
     }
 
@@ -62,5 +65,5 @@ public class EmployeController {
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) { service.deleteById(id); }
+    public void delete(@PathVariable @Positive Long id) { service.deleteById(id); }
 }
